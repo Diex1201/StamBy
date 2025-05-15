@@ -7,9 +7,8 @@ using Random = UnityEngine.Random;
 
 public class Spawner : MonoBehaviour
 {
-    [SerializeField] private GameObject[] prefabs;
+    [SerializeField] private RoundCards roundCards;
     [SerializeField] private GameObject funnel;
-    [SerializeField] private int spawnCount;
     [SerializeField] private float spawnYpos = 77f;
     [SerializeField] private float xRangeWithFunnel = 24f;
     [SerializeField] private float xRangeWithoutFunnel = 15f;
@@ -24,8 +23,8 @@ public class Spawner : MonoBehaviour
     private void Start()
     {
         funnel.SetActive(useFunnel);
-        currentCards = spawnCount;
-        SpawnCards(spawnCount);
+        currentCards = roundCards.SpawnCount;
+        SpawnCards(currentCards);
 
         GameSignals.OnReshuffle
             .Subscribe(_ => SpawnCards(currentCards))
@@ -72,7 +71,7 @@ public class Spawner : MonoBehaviour
     private List<GameObject> GenerateCardSpawnList(int count)
     {
         var cardList = new List<GameObject>();
-        int uniqueCount = prefabs.Length;
+        int uniqueCount = roundCards.Prefabs.Length;
         int totalTriplets = count / 3;
 
         int tripletsPerType = totalTriplets / uniqueCount;
@@ -82,7 +81,7 @@ public class Spawner : MonoBehaviour
         {
             for (int t = 0; t < tripletsPerType * 3; t++)
             {
-                cardList.Add(prefabs[i]);
+                cardList.Add(roundCards.Prefabs[i]);
             }
         }
 
@@ -100,7 +99,7 @@ public class Spawner : MonoBehaviour
             int idx = indices[i % indices.Count];
             for (int t = 0; t < 3; t++)
             {
-                cardList.Add(prefabs[idx]);
+                cardList.Add(roundCards.Prefabs[idx]);
             }
         }
 

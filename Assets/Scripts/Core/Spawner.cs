@@ -7,7 +7,7 @@ using Random = UnityEngine.Random;
 
 public class Spawner : MonoBehaviour
 {
-    [SerializeField] private RoundCards roundCards;
+    
     [SerializeField] private GameObject funnel;
     [SerializeField] private float spawnYpos = 77f;
     [SerializeField] private float xRangeWithFunnel = 24f;
@@ -16,15 +16,20 @@ public class Spawner : MonoBehaviour
     [SerializeField] private float cardWidth = 2f;
     [SerializeField] private int spawnDelay = 200;
     [SerializeField] private bool useFunnel;
-    private int currentCards;
+    private RoundCards roundCards;
     private readonly CompositeDisposable disposables = new();
-
+    private int currentCards;
 
     private void Start()
     {
         funnel.SetActive(useFunnel);
-        currentCards = roundCards.SpawnCount;
-        SpawnCards(currentCards);
+
+        GameSignals.OnStartRound.
+            Subscribe(_ =>
+            {
+                OnStartRound(_);
+            })
+            .AddTo(disposables);
 
         GameSignals.OnReshuffle
             .Subscribe(_ => SpawnCards(currentCards))
@@ -37,6 +42,12 @@ public class Spawner : MonoBehaviour
                CheckWin();
            })
            .AddTo(disposables);
+    }
+    private void OnStartRound(RoundCards cards)
+    {
+        roundCards = cards;
+        currentCards = roundCards.SpawnCount;
+        SpawnCards(currentCards);
     }
     private async void SpawnCards(int count)
     {
